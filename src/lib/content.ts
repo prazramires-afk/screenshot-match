@@ -381,13 +381,13 @@ export const MENTAL_NOTES: MentalNote[] = [
 
 /** Deterministic daily picks. */
 export function dailyMessage(dayOfYear: number): string {
-  return DAILY_MESSAGES[dayOfYear % DAILY_MESSAGES.length];
+  return DAILY_MESSAGES[dayOfYear % DAILY_MESSAGES.length] ?? DAILY_MESSAGES[0]!;
 }
 
 export function dailyPrompt(dayOfYear: number): string {
-  return GUIDED_PROMPTS[dayOfYear % GUIDED_PROMPTS.length];
+  return GUIDED_PROMPTS[dayOfYear % GUIDED_PROMPTS.length] ?? GUIDED_PROMPTS[0]!;
 }
 
 export function dailyNote(dayOfYear: number): MentalNote {
-  return MENTAL_NOTES[dayOfYear % MENTAL_NOTES.length];
+  return MENTAL_NOTES[dayOfYear % MENTAL_NOTES.length] ?? MENTAL_NOTES[0]!;
 }
