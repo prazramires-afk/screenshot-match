@@ -37,10 +37,13 @@ export function CheckinCard() {
 
   const save = () => {
     if (!mood || !energy) return;
+    const trimmed = note.trim();
     checkinStore.set((all) => {
       const date = todayKey();
       const others = all.filter((c) => c.date !== date);
-      return [...others, { id: existing?.id ?? uid(), date, mood, energy, note: note.trim() || undefined }];
+      const record: DailyCheckIn = { id: existing?.id ?? uid(), date, mood, energy };
+      if (trimmed) record.note = trimmed;
+      return [...others, record];
     });
     setSaved(true);
     window.setTimeout(() => setSaved(false), 2000);
