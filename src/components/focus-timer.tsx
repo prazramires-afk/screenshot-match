@@ -19,6 +19,15 @@ const MODES: { id: Mode; label: string; focus: number; brk: number }[] = [
   { id: "custom", label: "Custom", focus: 25, brk: 0 },
 ];
 
+/* exactOptionalPropertyTypes: optional keys must be omitted, not set to undefined */
+function withPhase(t: LiveTimer, phase: "focus" | "break", patch: Partial<LiveTimer>): LiveTimer {
+  const next: LiveTimer = { ...t, ...patch, phase };
+  if (patch.endsAt === null) delete next.endsAt;
+  if (patch.remainingMs === null) delete next.remainingMs;
+  if (patch.startedAt === null) delete next.startedAt;
+  return next;
+}
+
 /** Persistent focus timer. Remaining time is derived from endsAt (epoch ms),
  * so backgrounding, reloading, or closing the app never loses the countdown. */
 export function FocusTimer({ compact = false }: { compact?: boolean }) {
@@ -41,26 +50,24 @@ export function FocusTimer({ compact = false }: { compact?: boolean }) {
 
     const nowIso = new Date().toISOString();
     if (timer.phase === "focus") {
-      focusSessionsStore.set((all) => [
-        ...all,
-        {
-          id: uid(),
-          title: timer.title,
-          mode: timer.mode,
-          minutes: timer.durationMin,
-          startedAt: timer.startedAt ?? nowIso,
-          endedAt: nowIso,
-        },
-      ]);
+      const session = {
+        id: uid(),
+        mode: timer.mode,
+        minutes: timer.durationMin,
+        startedAt: timer.startedAt ?? nowIso,
+        endedAt: nowIso,
+      };
+      const record = timer.title ? { ...session, title: timer.title } : session;
+      focusSessionsStore.set((all) => [...all, record]);
       notifyIfEnabled(settings, "Focus session complete", "Well done. Time for a short break.");
       if (timer.breakMin > 0) {
-        focusTimerStore.set((t) => ({ ...t, phase: "break", durationMin: t.breakMin, endsAt: Date.now() + t.breakMin * 60_000, remainingMs: undefined }));
+        focusTimerStore.set((t) => withPhase(t, "break", { durationMin: t.breakMin, endsAt: Date.now() + t.breakMin * 60_000 }));
       } else {
-        focusTimerStore.set((t) => ({ ...t, status: "idle", phase: "focus", endsAt: undefined, remainingMs: undefined }));
+        focusTimerStore.set((t) => withPhase(t, "focus", { status: "idle", endsAt: null, remainingMs: null }));
       }
     } else {
       notifyIfEnabled(settings, "Break over", "Ready for another focused session?");
-      focusTimerStore.set((t) => ({ ...t, status: "idle", phase: "focus", endsAt: undefined, remainingMs: undefined }));
+      focusTimerStore.set((t) => withPhase(t, "focus", { status: "idle", endsAt: null, remainingMs: null }));
     }
   }, [timer, settings]);
 
@@ -78,17 +85,40 @@ export function FocusTimer({ compact = false }: { compact?: boolean }) {
   const setMode = (mode: Mode) => {
     const m = MODES.find((x) => x.id === mode)!;
     const focus = mode === "custom" ? timer.durationMin || settings.defaultFocusDuration : m.focus;
-    focusTimerStore.set((t) => ({ ...t, mode, status: "idle", phase: "focus", durationMin: focus, breakMin: m.brk, endsAt: undefined, remainingMs: undefined, title: mode === "single-task" ? t.title : undefined }));
+    focusTimerStore.set((t) => {
+      const next = withPhase(t, "focus", {
+        mode,
+        status: "idle",
+        durationMin: focus,
+        breakMin: m.brk,
+        endsAt: null,
+        remainingMs: null,
+      });
+      if (mode !== "single-task" && mode !== "custom") delete next.title;
+      return next;
+    });
   };
 
   const start = () => {
-    focusTimerStore.set((t) => ({ ...t, status: "running", endsAt: Date.now() + (t.remainingMs ?? t.durationMin * 60_000), startedAt: t.phase === "focus" ? new Date().toISOString() : t.startedAt, remainingMs: undefined }));
+    focusTimerStore.set((t) => {
+      const patch: Partial<LiveTimer> = { status: "running", endsAt: Date.now() + (t.remainingMs ?? t.durationMin * 60_000), remainingMs: null };
+      if (t.phase === "focus") patch.startedAt = new Date().toISOString();
+      return withPhase(t, t.phase, patch);
+    });
   };
   const pause = () => {
-    focusTimerStore.set((t) => ({ ...t, status: "paused", remainingMs: Math.max((t.endsAt ?? 0) - Date.now(), 0), endsAt: undefined }));
+    focusTimerStore.set((t) => withPhase(t, t.phase, { status: "paused", remainingMs: Math.max((t.endsAt ?? 0) - Date.now(), 0), endsAt: null }));
   };
   const reset = () => {
-    focusTimerStore.set((t) => ({ ...t, status: "idle", phase: "focus", durationMin: t.mode === "custom" ? t.durationMin : activeMode.focus, endsAt: undefined, remainingMs: undefined, startedAt: undefined }));
+    focusTimerStore.set((t) =>
+      withPhase(t, "focus", {
+        status: "idle",
+        durationMin: t.mode === "custom" ? t.durationMin : activeMode.focus,
+        endsAt: null,
+        remainingMs: null,
+        startedAt: null,
+      }),
+    );
   };
 
   return (
