@@ -91,10 +91,10 @@ export function LineChart({
   return (
     <div className={cn("w-full", className)}>
       <svg viewBox={`0 0 ${w} ${h}`} className="w-full" style={{ height }} role="img" aria-label="trend chart">
-        <line x1={pad} y1={h - pad} x2={w - pad} y2={h - pad} stroke="hsl(var(--border))" strokeWidth="1" />
-        {data.length > 0 && <path d={path} fill="none" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" />}
+        <line x1={pad} y1={h - pad} x2={w - pad} y2={h - pad} stroke="var(--border)" strokeWidth="1" />
+        {data.length > 0 && <path d={path} fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" />}
         {pts.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3" fill="hsl(var(--primary))">
+          <circle key={i} cx={p.x} cy={p.y} r="3" fill="var(--primary)">
             <title>{`${p.label}: ${p.value}`}</title>
           </circle>
         ))}
@@ -129,13 +129,13 @@ export function Ring({
   return (
     <div className={cn("relative inline-flex items-center justify-center", className)} style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--secondary))" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--secondary)" strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="hsl(var(--primary))"
+          stroke="var(--primary)"
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={c}
