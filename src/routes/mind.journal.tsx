@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PenLine, Search } from "lucide-react";
+import { BookOpen, PenLine, Search } from "lucide-react";
 
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { journalStore } from "@/lib/stores";
 import { CATEGORY_LABELS, ORGANIZER_CATEGORIES } from "@/lib/content";
-import { parseKey } from "@/lib/date";
 import { pageHead } from "@/lib/head";
 import type { OrganizerCategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -18,6 +17,11 @@ export const Route = createFileRoute("/mind/journal")({
   head: () => pageHead("Free Journal · Clear Mental State", "An unlimited, private journal with search, categories and calendar history."),
   component: JournalList,
 });
+
+function localDay(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 
 function JournalList() {
   const entries = journalStore.use();
@@ -32,17 +36,7 @@ function JournalList() {
       .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
   }, [entries, query, category]);
 
-  const marked = useMemo(() => new Set(entries.map((e) => parseKey(e.createdAt).toISOString().slice(0, 10))), [entries]);
-  // createdAt is ISO with time; derive local date key instead
-  const days = useMemo(() => {
-    const set = new Set<string>();
-    for (const e of entries) {
-      const d = new Date(e.createdAt);
-      set.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`);
-    }
-    return set;
-  }, [entries]);
-  void marked;
+  const writtenDays = useMemo(() => new Set(entries.map((e) => localDay(e.createdAt))), [entries]);
 
   return (
     <div className="space-y-4">
@@ -80,14 +74,14 @@ function JournalList() {
 
       {entries.length > 0 ? (
         <section className="rounded-2xl border bg-card p-4 shadow-sm">
-          <MonthCalendar marked={days} />
+          <MonthCalendar marked={writtenDays} />
           <p className="mt-2 text-center text-[11px] text-muted-foreground">Days you wrote</p>
         </section>
       ) : null}
 
       {filtered.length === 0 ? (
         <EmptyState
-          icon={BookOpenIcon}
+          icon={BookOpen}
           title={entries.length === 0 ? "Your journal is empty" : "Nothing matches"}
           description={entries.length === 0 ? "Write your first entry — a thought, a plan, or simply how today felt." : "Try another search word or category."}
           action={
@@ -117,5 +111,3 @@ function JournalList() {
     </div>
   );
 }
-
-import { BookOpen as BookOpenIcon } from "lucide-react";
