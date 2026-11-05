@@ -54,8 +54,10 @@ export function useAppInit() {
       log[today] = log[today] ?? {};
 
       const fire = (kind: string, title: string, body: string) => {
-        if (log[today]?.[kind]) return;
-        log[today][kind] = true;
+        const dayLog = log[today] ?? {};
+        if (dayLog[kind]) return;
+        dayLog[kind] = true;
+        log[today] = dayLog;
         window.localStorage.setItem(LOG_KEY, JSON.stringify(log));
         notifyIfEnabled(s, title, body);
       };

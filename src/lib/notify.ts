@@ -22,7 +22,9 @@ export async function requestNotifyPermission(): Promise<boolean> {
 export function notify(title: string, body?: string) {
   if (!canNotify()) return;
   try {
-    new Notification(title, { body, icon: "/favicon.ico" });
+    const options: NotificationOptions = { icon: "/favicon.ico" };
+    if (body !== undefined) options.body = body;
+    new Notification(title, options);
   } catch {
     /* ignore */
   }

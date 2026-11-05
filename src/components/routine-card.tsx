@@ -80,9 +80,11 @@ export function RoutineCard() {
                 </p>
               </div>
               {link ? (
-                <Button variant="ghost" size="sm" className="tap h-8 rounded-full px-3 text-xs text-primary" onClick={() => (window.location.href = link)}>
-                  Open
-                </Button>
+                <Link to={link}>
+                  <Button variant="ghost" size="sm" className="tap h-8 rounded-full px-3 text-xs text-primary">
+                    Open
+                  </Button>
+                </Link>
               ) : null}
               {entry?.status !== "done" ? (
                 <button
