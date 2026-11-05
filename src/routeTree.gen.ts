@@ -10,33 +10,52 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MindRouteImport } from './routes/mind'
+import { Route as MindJournalRouteImport } from './routes/mind.journal'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MindRoute = MindRouteImport.update({
+  id: '/mind',
+  path: '/mind',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MindJournalRoute = MindJournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => MindRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/mind': typeof MindRouteWithChildren
+  '/mind/journal': typeof MindJournalRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mind': typeof MindRouteWithChildren
+  '/mind/journal': typeof MindJournalRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/mind': typeof MindRouteWithChildren
+  '/mind/journal': typeof MindJournalRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/mind' | '/mind/journal'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/mind' | '/mind/journal'
+  id: '__root__' | '/' | '/mind' | '/mind/journal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MindRoute: typeof MindRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +67,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mind': {
+      id: '/mind'
+      path: '/mind'
+      fullPath: '/mind'
+      preLoaderRoute: typeof MindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mind/journal': {
+      id: '/mind/journal'
+      path: '/journal'
+      fullPath: '/mind/journal'
+      preLoaderRoute: typeof MindJournalRouteImport
+      parentRoute: typeof MindRoute
+    }
   }
 }
 
+interface MindRouteChildren {
+  MindJournalRoute: typeof MindJournalRoute
+}
+
+const MindRouteChildren: MindRouteChildren = {
+  MindJournalRoute: MindJournalRoute,
+}
+
+const MindRouteWithChildren = MindRoute._addFileChildren(MindRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MindRoute: MindRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
