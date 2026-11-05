@@ -11,7 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MindRouteImport } from './routes/mind'
+import { Route as MindBrainDumpRouteImport } from './routes/mind.brain-dump'
+import { Route as MindGratitudeRouteImport } from './routes/mind.gratitude'
+import { Route as MindGuidedRouteImport } from './routes/mind.guided'
 import { Route as MindJournalRouteImport } from './routes/mind.journal'
+import { Route as MindJournalIdRouteImport } from './routes/mind.journal.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -23,34 +27,88 @@ const MindRoute = MindRouteImport.update({
   path: '/mind',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MindBrainDumpRoute = MindBrainDumpRouteImport.update({
+  id: '/brain-dump',
+  path: '/brain-dump',
+  getParentRoute: () => MindRoute,
+} as any)
+const MindGratitudeRoute = MindGratitudeRouteImport.update({
+  id: '/gratitude',
+  path: '/gratitude',
+  getParentRoute: () => MindRoute,
+} as any)
+const MindGuidedRoute = MindGuidedRouteImport.update({
+  id: '/guided',
+  path: '/guided',
+  getParentRoute: () => MindRoute,
+} as any)
 const MindJournalRoute = MindJournalRouteImport.update({
   id: '/journal',
   path: '/journal',
   getParentRoute: () => MindRoute,
 } as any)
+const MindJournalIdRoute = MindJournalIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MindJournalRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/mind': typeof MindRouteWithChildren
-  '/mind/journal': typeof MindJournalRoute
+  '/mind/brain-dump': typeof MindBrainDumpRoute
+  '/mind/gratitude': typeof MindGratitudeRoute
+  '/mind/guided': typeof MindGuidedRoute
+  '/mind/journal': typeof MindJournalRouteWithChildren
+  '/mind/journal/$id': typeof MindJournalIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/mind': typeof MindRouteWithChildren
-  '/mind/journal': typeof MindJournalRoute
+  '/mind/brain-dump': typeof MindBrainDumpRoute
+  '/mind/gratitude': typeof MindGratitudeRoute
+  '/mind/guided': typeof MindGuidedRoute
+  '/mind/journal': typeof MindJournalRouteWithChildren
+  '/mind/journal/$id': typeof MindJournalIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/mind': typeof MindRouteWithChildren
-  '/mind/journal': typeof MindJournalRoute
+  '/mind/brain-dump': typeof MindBrainDumpRoute
+  '/mind/gratitude': typeof MindGratitudeRoute
+  '/mind/guided': typeof MindGuidedRoute
+  '/mind/journal': typeof MindJournalRouteWithChildren
+  '/mind/journal/$id': typeof MindJournalIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/mind' | '/mind/journal'
+  fullPaths:
+    | '/'
+    | '/mind'
+    | '/mind/brain-dump'
+    | '/mind/gratitude'
+    | '/mind/guided'
+    | '/mind/journal'
+    | '/mind/journal/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/mind' | '/mind/journal'
-  id: '__root__' | '/' | '/mind' | '/mind/journal'
+  to:
+    | '/'
+    | '/mind'
+    | '/mind/brain-dump'
+    | '/mind/gratitude'
+    | '/mind/guided'
+    | '/mind/journal'
+    | '/mind/journal/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/mind'
+    | '/mind/brain-dump'
+    | '/mind/gratitude'
+    | '/mind/guided'
+    | '/mind/journal'
+    | '/mind/journal/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -74,6 +132,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MindRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mind/brain-dump': {
+      id: '/mind/brain-dump'
+      path: '/brain-dump'
+      fullPath: '/mind/brain-dump'
+      preLoaderRoute: typeof MindBrainDumpRouteImport
+      parentRoute: typeof MindRoute
+    }
+    '/mind/gratitude': {
+      id: '/mind/gratitude'
+      path: '/gratitude'
+      fullPath: '/mind/gratitude'
+      preLoaderRoute: typeof MindGratitudeRouteImport
+      parentRoute: typeof MindRoute
+    }
+    '/mind/guided': {
+      id: '/mind/guided'
+      path: '/guided'
+      fullPath: '/mind/guided'
+      preLoaderRoute: typeof MindGuidedRouteImport
+      parentRoute: typeof MindRoute
+    }
     '/mind/journal': {
       id: '/mind/journal'
       path: '/journal'
@@ -81,15 +160,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MindJournalRouteImport
       parentRoute: typeof MindRoute
     }
+    '/mind/journal/$id': {
+      id: '/mind/journal/$id'
+      path: '/$id'
+      fullPath: '/mind/journal/$id'
+      preLoaderRoute: typeof MindJournalIdRouteImport
+      parentRoute: typeof MindJournalRoute
+    }
   }
 }
 
+interface MindJournalRouteChildren {
+  MindJournalIdRoute: typeof MindJournalIdRoute
+}
+
+const MindJournalRouteChildren: MindJournalRouteChildren = {
+  MindJournalIdRoute: MindJournalIdRoute,
+}
+
+const MindJournalRouteWithChildren = MindJournalRoute._addFileChildren(
+  MindJournalRouteChildren,
+)
+
 interface MindRouteChildren {
-  MindJournalRoute: typeof MindJournalRoute
+  MindBrainDumpRoute: typeof MindBrainDumpRoute
+  MindGratitudeRoute: typeof MindGratitudeRoute
+  MindGuidedRoute: typeof MindGuidedRoute
+  MindJournalRoute: typeof MindJournalRouteWithChildren
 }
 
 const MindRouteChildren: MindRouteChildren = {
-  MindJournalRoute: MindJournalRoute,
+  MindBrainDumpRoute: MindBrainDumpRoute,
+  MindGratitudeRoute: MindGratitudeRoute,
+  MindGuidedRoute: MindGuidedRoute,
+  MindJournalRoute: MindJournalRouteWithChildren,
 }
 
 const MindRouteWithChildren = MindRoute._addFileChildren(MindRouteChildren)
