@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { checkinStore, getCheckinFor, prioritiesStore, getPrioritiesFor } from "@/lib/stores";
+import type { DailyCheckIn } from "@/lib/types";
 import { todayKey } from "@/lib/date";
 import { uid } from "@/lib/storage";
 import { cn } from "@/lib/utils";

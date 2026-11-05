@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Check, CircleSlash, Pencil, Plus, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -80,9 +81,11 @@ export function RoutineCard() {
                 </p>
               </div>
               {link ? (
-                <Button variant="ghost" size="sm" className="tap h-8 rounded-full px-3 text-xs text-primary" onClick={() => (window.location.href = link)}>
-                  Open
-                </Button>
+                <Link to={link}>
+                  <Button variant="ghost" size="sm" className="tap h-8 rounded-full px-3 text-xs text-primary">
+                    Open
+                  </Button>
+                </Link>
               ) : null}
               {entry?.status !== "done" ? (
                 <button

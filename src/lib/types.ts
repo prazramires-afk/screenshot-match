@@ -94,9 +94,9 @@ export interface LiveTimer {
   title?: string;
   durationMin: number;
   breakMin: number;
-  endsAt?: number; // epoch ms while running
-  remainingMs?: number; // while paused
-  startedAt?: string; // ISO of the focus phase start
+  endsAt?: number | null; // epoch ms while running
+  remainingMs?: number | null; // while paused
+  startedAt?: string | null; // ISO of the focus phase start
 }
 
 export type DistractionType = "phone" | "social" | "environment" | "thought" | "other";
